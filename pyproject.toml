@@ -42,7 +42,7 @@ test = [
 
 ]
 dev = [
-	"smallgrad[test]",
+	"light_chat[test]",
 	"tox",
 ]
 
