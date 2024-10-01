@@ -1,0 +1,61 @@
+[project]
+name = "light-chat"
+version = "0.0.1"
+description = "A simple Trigram model"
+readme = "README.md"
+keywords = []
+classifiers = [
+    "Development Status :: 1 - Planning",
+	"Natural Language :: English",
+	"Operating System :: POSIX :: Linux",
+	"Operating System :: MacOS :: MacOS X",
+	"Operating System :: Microsoft :: Windows",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+	"pip==24.0",
+]
+
+[metadata]
+author = "Lorenzo Del Signore"
+author_email = "xelithras94@gmail.com"
+maintainer = "Lorenzo Del Signore"
+maintainer_email = "xelithras94@gmail.com"
+url = "https://github.com/lorenzo-delsignore/light-chat"
+long_description = { file = "README.md" }
+long_description_content_type = "text/markdown"
+license = { file = "LICENSE" }
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests"]
+namespaces = false
+
+[project.optional-dependencies]
+test = [
+	"coverage>=5.0.2",
+	"pytest>=6.1.1",
+	"pytest-mock",
+
+]
+dev = [
+	"smallgrad[test]",
+	"tox",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[build-system]
+requires = [
+	"setuptools==69.5.1",
+	"wheel",
+]
