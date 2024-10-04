@@ -5,14 +5,14 @@ import torch
 from lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset, random_split
 
-from light_chat.data.components.dataset import TrigramDataset
+from light_chat.data.components.dataset import NgramDataset
 
 
 class NamesDataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = "data/",
-        train_val_test_split: Tuple[int, int, int] = (451, 100, 50),
+        train_val_test_split: Tuple[int, int, int] = (159703, 45629, 22814),
         batch_size: int = 64,
         num_workers: int = 0,
         pin_memory: bool = False,
@@ -20,7 +20,7 @@ class NamesDataModule(LightningDataModule):
         """Initialize a `NamesDataModule`.
 
         :param data_dir: The data directory. Defaults to `"data/"`.
-        :param train_val_test_split: The train, validation and test split. Defaults to `(55_000, 5_000, 10_000)`.
+        :param train_val_test_split: The train, validation and test split. Defaults to `(159703, 45629, 22814)`.
         :param batch_size: The batch size. Defaults to `64`.
         :param num_workers: The number of workers. Defaults to `0`.
         :param pin_memory: Whether to pin memory. Defaults to `False`.
@@ -30,15 +30,15 @@ class NamesDataModule(LightningDataModule):
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
-        self.idx_to_bigram = None
-        self.idx_to_char = None
         self.batch_size_per_device = batch_size
+        self.itos = None
+        self.stoi = None
 
     def setup(self, stage: Optional[str] = None) -> None:
         if not self.data_train and not self.data_val and not self.data_test:
-            dataset = TrigramDataset(Path(self.hparams.data_dir))
-            self.idx_to_char = dataset.idx_to_char
-            self.idx_to_bigram = dataset.idx_to_bigram
+            dataset = NgramDataset(Path(self.hparams.data_dir))
+            self.itos = dataset.itos
+            self.stoi = dataset.stoi
             self.data_train, self.data_val, self.data_test = random_split(
                 dataset=dataset,
                 lengths=self.hparams.train_val_test_split,

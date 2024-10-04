@@ -1,6 +1,6 @@
 _target_: light_chat.data.datamodule.NamesDataModule
 data_dir: D:/RepoBitbucket/light-chat/light_chat/data/names.txt
 batch_size: 64 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
-train_val_test_split: [451, 100, 50]
+train_val_test_split: [159703, 45629, 22814]
 num_workers: 0
 pin_memory: False
