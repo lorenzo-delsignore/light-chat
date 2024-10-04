@@ -1,11 +1,9 @@
-from typing import Any, Dict, Tuple
-
 import hydra
 import torch
 from omegaconf import DictConfig
 from torch import nn
 
-from light_chat.models.trigram_module import TrigramModuleVanilla
+from light_chat.models.trigram_module import NgramModuleVanilla
 from light_chat.utils import (
     RankedLogger,
     extras,
@@ -23,20 +21,22 @@ def evaluate(cfg: DictConfig) -> None:
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule = hydra.utils.instantiate(cfg.data)
     datamodule.setup()
-    idx_to_char = datamodule.idx_to_char
-    model = TrigramModuleVanilla()
+    idx_to_char = datamodule.itos
+    model = NgramModuleVanilla()
     log.info(f"Instantiating model <{cfg.model._target_}>")
     model: nn.Module = hydra.utils.instantiate(cfg.model)
-    model.W = torch.load(cfg.ckpt_path)
     for i in range(5):
         out = []
-        ix = 0
+        ix = [0, 0, 0]
         while True:
-            bigram = {"bigram_idx": torch.tensor([ix])}
-            probs = model(bigram)
-            ix = torch.multinomial(probs, num_samples=1, replacement=True).item()
-            out.append(idx_to_char[ix])
-            if ix == 0:
+            ngram = {"ngram": torch.tensor([ix])}
+            logits = model(ngram)
+            probs = logits.exp()
+            probs = probs / probs.sum(dim=1, keepdim=True)
+            next_char = torch.multinomial(probs, num_samples=1, replacement=True).item()
+            ix = ix[1:] + [next_char]
+            out.append(idx_to_char[next_char])
+            if next_char == 0:
                 break
         print("".join(out))
 
