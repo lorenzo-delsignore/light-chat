@@ -60,10 +60,10 @@ def train_model(
     for epoch in range(epochs):
         for batch_idx, batch in enumerate(train_loader):
             loss = model.training_step(batch)
-
-            print(
-                 f"Epoch [{epoch}/{epochs}], Step [{batch_idx}/{len(train_loader)}], Loss: {loss.item()}"
-            )
+            if batch_idx % 1000 == 0:
+                print(
+                    f"Epoch [{epoch}/{epochs}], Step [{batch_idx}/{len(train_loader)}], Loss: {loss.item()}"
+                )
         for batch in val_loader:
             model.validation_step(batch)
         print(f"Epoch {epoch} - Training Loss: {model.train_loss.compute()}")

@@ -22,7 +22,6 @@ def evaluate(cfg: DictConfig) -> None:
     datamodule = hydra.utils.instantiate(cfg.data)
     datamodule.setup()
     idx_to_char = datamodule.itos
-    model = NgramModuleVanilla()
     log.info(f"Instantiating model <{cfg.model._target_}>")
     model: nn.Module = hydra.utils.instantiate(cfg.model)
     for i in range(5):
