@@ -6,38 +6,24 @@ from torch.utils.data import DataLoader
 from torchmetrics import MeanMetric
 
 from light_chat.data.datamodule import NamesDataModule
+from light_chat.models.components.mlp import MLP
 
 
 class NgramModuleVanilla(nn.Module):
     """Example of a model class for next character prediction using vanilla PyTorch."""
 
-    def __init__(self) -> None:
+    def __init__(self, net: nn.Module) -> None:
         """Initialize the model with necessary components."""
         super(NgramModuleVanilla, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
         self.train_loss = MeanMetric()
         self.val_loss = MeanMetric()
         self.test_loss = MeanMetric()
-        g = torch.Generator().manual_seed(42)
-        self.enc = nn.Parameter(torch.randn((27, 2), generator=g))
-        self.first_W = nn.Parameter(torch.randn((6, 100), generator=g))
-        self.first_bias = nn.Parameter(torch.randn(100, generator=g))
-        self.second_W = nn.Parameter(torch.randn((100, 27), generator=g))
-        self.second_bias = nn.Parameter(torch.randn(27, generator=g))
-        self.parameters = [
-            self.enc,
-            self.first_W,
-            self.first_bias,
-            self.second_W,
-            self.second_bias,
-        ]
+        self.net = net
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Perform a forward pass through the model"""
-        ngram_enc = self.enc[x["ngram"]]
-        hidden = torch.tanh((ngram_enc.view(-1, 6) @ self.first_W) + self.first_bias)
-        logits = (hidden @ self.second_W) + self.second_bias
-        return logits
+        return self.net(x)
 
     def model_step(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
         """Perform a single model step on a batch of data."""
@@ -50,8 +36,8 @@ class NgramModuleVanilla(nn.Module):
         """Perform a single training step."""
         loss = self.model_step(batch)
         loss.backward()
-        for parameters in self.parameters:
-            parameters.data += -0.1 * parameters.grad
+        for parameters in self.net.parameters():
+            parameters.data += -0.01 * parameters.grad
             parameters.grad = None
         self.train_loss.update(loss.item())
         return loss
@@ -97,6 +83,7 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader) -> None:
 if __name__ == "__main__":
     dataset = NamesDataModule("light_chat/data/names.txt")
     dataset.setup()
-    model = NgramModuleVanilla()
+    net = MLP()
+    model = NgramModuleVanilla(net=net)
     train_model(model, dataset.train_dataloader(), dataset.val_dataloader(), epochs=100)
     evaluate_model(model, dataset.test_dataloader())
