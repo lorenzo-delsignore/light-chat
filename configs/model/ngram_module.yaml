@@ -1,0 +1,7 @@
+_target_: light_chat.models.ngram_module.NgramModuleVanilla
+
+net:
+  _target_: light_chat.models.components.mlp.MLP
+  emb_in: 2
+  emb_hidden: 100
+  context: 3
