@@ -99,4 +99,4 @@ if __name__ == "__main__":
     dataset.setup()
     model = NgramModuleVanilla()
     train_model(model, dataset.train_dataloader(), dataset.val_dataloader(), epochs=100)
-    evaluate_model(model, dataset.test_dataloader)
+    evaluate_model(model, dataset.test_dataloader())
