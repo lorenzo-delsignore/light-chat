@@ -3,7 +3,7 @@ import torch
 from omegaconf import DictConfig
 from torch import nn
 
-from light_chat.models.trigram_module import NgramModuleVanilla
+from light_chat.models.ngram_module import NgramModuleVanilla
 from light_chat.utils import (
     RankedLogger,
     extras,
